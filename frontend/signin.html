@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In - User Auth System</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="auth-container">
+        <h2>Sign In to Your Account</h2>
+        <form id="signInForm">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" placeholder="Enter your email" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" placeholder="Enter your password" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Sign In</button>
+        </form>
+
+        <div class="social-login-divider">or continue with</div>
+
+        <button type="button" id="googleSignInBtn" class="btn btn-social btn-google">
+            <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google logo"> Sign in with Google
+        </button>
+        <button type="button" id="githubSignInBtn" class="btn btn-social btn-github">
+            <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="GitHub logo"> Sign in with GitHub
+        </button>
+
+        <div id="message" class="message-placeholder" aria-live="assertive"></div>
+        <p class="auth-link">Don't have an account? <a href="signup.html">Sign Up</a></p>
+    </div>
+    <script src="signin.js"></script>
+</body>
+</html>
