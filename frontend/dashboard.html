@@ -56,6 +56,8 @@
     <div class="dashboard-container">
         <h1>Welcome to Your Dashboard!</h1>
         <p>You are successfully logged in.</p>
+        <!-- Optional: A message placeholder for dashboard specific messages -->
+        <!-- <div id="dashboardMessage" class="message-placeholder" style="display: none;" aria-live="assertive"></div> -->
 
         <div class="user-info" id="userInfo" style="display: none;">
             <p><strong>User ID:</strong> <span id="userId"></span></p>
@@ -66,59 +68,6 @@
         <button id="logoutButton" class="btn btn-primary" style="background-color: #dc3545; border-color: #dc3545;">Logout</button>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const logoutButton = document.getElementById('logoutButton');
-            const userInfoDiv = document.getElementById('userInfo');
-            const userIdSpan = document.getElementById('userId');
-            const userEmailSpan = document.getElementById('userEmail');
-
-            const token = localStorage.getItem('accessToken');
-
-            if (!token) {
-                // No token found, redirect to sign-in page
-                window.location.href = 'signin.html';
-                return; // Stop further execution
-            }
-
-            // Attempt to parse the token (assuming it's a JWT)
-            try {
-                const payloadBase64 = token.split('.')[1];
-                const decodedPayload = JSON.parse(atob(payloadBase64));
-
-                if (decodedPayload && decodedPayload.exp && decodedPayload.exp * 1000 < Date.now()) {
-                    // Token expired
-                    localStorage.removeItem('accessToken');
-                    alert('Your session has expired. Please sign in again.');
-                    window.location.href = 'signin.html';
-                    return;
-                }
-
-                // Display user info if available in token
-                if (decodedPayload.user_id && decodedPayload.email) {
-                    userIdSpan.textContent = decodedPayload.user_id;
-                    userEmailSpan.textContent = decodedPayload.email;
-                    userInfoDiv.style.display = 'block';
-                }
-
-            } catch (error) {
-                console.error("Error decoding token:", error);
-                // If token is malformed or not a JWT, treat as invalid
-                localStorage.removeItem('accessToken');
-                alert('Invalid session. Please sign in again.');
-                window.location.href = 'signin.html';
-                return;
-            }
-
-
-            if (logoutButton) {
-                logoutButton.addEventListener('click', () => {
-                    localStorage.removeItem('accessToken');
-                    // Optionally, notify the backend about logout if necessary
-                    window.location.href = 'signin.html';
-                });
-            }
-        });
-    </script>
+    <script src="dashboard.js"></script>
 </body>
 </html>

@@ -1,15 +1,39 @@
 document.addEventListener('DOMContentLoaded', () => {
     const signupForm = document.getElementById('signupForm');
     const messageElement = document.getElementById('message');
+    const submitButton = signupForm ? signupForm.querySelector('button[type="submit"]') : null;
 
     const displayMessage = (message, type) => {
-        messageElement.textContent = message;
-        messageElement.className = `message-${type}`; // e.g., message-success or message-error
+        if (!messageElement) return;
+        messageElement.textContent = message || ''; // Clear message if null or empty
+        // Base class is message-placeholder. Add specific type class for styling.
+        // Remove old type classes before adding new one.
+        messageElement.classList.remove('message-success', 'message-error', 'message-loading', 'message-active');
+
+        if (message && type) {
+            messageElement.classList.add(`message-${type}`);
+            messageElement.classList.add('message-active'); // To trigger visibility/animation
+        }
+        // If no message or type, it remains hidden or clears.
     };
 
-    if (signupForm) {
+    const setLoadingState = (isLoading) => {
+        if (!submitButton) return;
+        if (isLoading) {
+            submitButton.disabled = true;
+            submitButton.textContent = 'Signing Up...'; // Or add a spinner icon
+            displayMessage('Processing your registration...', 'loading');
+        } else {
+            submitButton.disabled = false;
+            submitButton.textContent = 'Sign Up';
+            // displayMessage(null); // Clear loading message - handled by next success/error message
+        }
+    };
+
+    if (signupForm && submitButton) {
         signupForm.addEventListener('submit', async (event) => {
-            event.preventDefault(); // Prevent default form submission
+            event.preventDefault();
+            displayMessage(null); // Clear previous messages
 
             const username = document.getElementById('username').value.trim();
             const email = document.getElementById('email').value.trim();
@@ -41,6 +65,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
+            setLoadingState(true);
+
             const payload = {
                 email: email,
                 password: password
@@ -58,24 +84,26 @@ document.addEventListener('DOMContentLoaded', () => {
                     body: JSON.stringify(payload),
                 });
 
-                const data = await response.json();
+                const data = await response.json(); // Attempt to parse JSON regardless of response.ok
 
                 if (response.ok) { // Status 200-299
                     displayMessage(data.message || 'Registration successful! Redirecting to sign in...', 'success');
-                    // Optionally, redirect to sign-in page after a delay
                     setTimeout(() => {
                         window.location.href = 'signin.html';
                     }, 2000);
                 } else {
-                    // Display error message from backend
-                    displayMessage(data.message || `Registration failed with status: ${response.status}`, 'error');
+                    // Display error message from backend, or a generic one
+                    displayMessage(data.message || `Registration failed: ${response.statusText || response.status}`, 'error');
                 }
             } catch (error) {
                 console.error('Registration error:', error);
-                displayMessage('An error occurred during registration. Please check your network connection and try again.', 'error');
+                displayMessage('An error occurred during registration. This could be a network issue or the server might be down. Please try again.', 'error');
+            } finally {
+                setLoadingState(false);
             }
         });
     } else {
-        console.error("Signup form not found on the page.");
+        if (!signupForm) console.error("Signup form not found on the page.");
+        if (!submitButton) console.error("Submit button not found on the signup form.");
     }
 });
