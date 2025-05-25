@@ -1,8 +1,37 @@
 # User Authentication System
 
+## Overview
+This project's primary purpose is to provide a robust and easy-to-integrate system for user authentication in web applications. It offers a foundational template that includes email/password registration and login, along with social login capabilities via Google and GitHub. Its key benefit is helping developers kickstart their projects with essential authentication features already built-in, saving time and effort.
+
 This project provides a template for user authentication with sign-in, sign-up, and social login options (Google & GitHub).
 
 It includes a Python Flask backend and a simple HTML, CSS, and JavaScript frontend.
+
+## Prerequisites
+Before you begin, ensure you have the following installed or set up:
+
+*   **Python:** Version 3.7 or higher. `pip` (Python package installer) and `venv` (for creating virtual environments) are typically included with Python installations.
+*   **Database (Optional but Recommended):**
+    *   The application can create and use a local SQLite database by default upon startup (`backend/app.py` contains logic for this), which is convenient for quick testing.
+    *   For more robust development or a production-like environment, setting up a dedicated database server like PostgreSQL is recommended. The file `database/schema.sql` is provided to help initialize the schema for a PostgreSQL database.
+*   **OAuth Credentials:**
+    *   To enable the Google and GitHub social login functionalities, you will need to create your own OAuth 2.0 applications on the Google Cloud Platform and GitHub Developer settings, respectively.
+    *   Detailed instructions on how to obtain these credentials can be found in the "[Configuration](#configuration)" section under "[Obtaining OAuth Credentials](#obtaining-oauth-credentials)".
+*   **Git (Optional):**
+    *   While not strictly necessary to run the project if you've downloaded the code as a ZIP file, Git is highly recommended for version control, managing changes, and collaborating.
+
+## Table of Contents
+- [Features](#features)
+- [Project Structure](#project-structure)
+- [Running the Project](#running-the-project)
+  - [1. Backend Setup](#1-backend-setup)
+  - [2. Frontend Setup](#2-frontend-setup)
+- [API Endpoints (Backend)](#api-endpoints-backend)
+- [Testing](#testing)
+  - [Backend Unit Tests](#backend-unit-tests)
+  - [Manual End-to-End Testing](#manual-end-to-end-testing)
+- [Configuration](#configuration)
+  - [Obtaining OAuth Credentials](#obtaining-oauth-credentials)
 
 ## Features
 - Email/Password Registration
@@ -20,20 +49,20 @@ It includes a Python Flask backend and a simple HTML, CSS, and JavaScript fronte
 │   ├── signin.html
 │   ├── signup.html
 │   ├── dashboard.html
-│   ├── handle_token.html     # Processes OAuth tokens
-│   ├── style.css
-│   ├── signin.js
-│   ├── signup.js
-│   ├── dashboard.js
-│   └── handle_token.js
+│   ├── `handle_token.html`     # Processes OAuth tokens
+│   ├── `style.css`
+│   ├── `signin.js`
+│   ├── `signup.js`
+│   ├── `dashboard.js`
+│   └── `handle_token.js`
 ├── backend/                  # Flask application for API and authentication logic
-│   ├── app.py                # Main Flask application
-│   ├── config.py             # Configuration (DB URI, OAuth keys)
-│   ├── requirements.txt      # Python dependencies
+│   ├── `app.py`                # Main Flask application
+│   ├── `config.py`             # Configuration (DB URI, OAuth keys)
+│   ├── `requirements.txt`      # Python dependencies
 │   └── ... (other potential modules)
 ├── database/                 # Database related files
-│   └── schema.sql            # SQL schema for the users table
-└── README.md                 # This file
+│   └── `schema.sql`            # SQL schema for the users table
+└── `README.md`                 # This file
 ```
 
 ## Running the Project
@@ -58,22 +87,24 @@ It includes a Python Flask backend and a simple HTML, CSS, and JavaScript fronte
     .\venv\Scripts\activate
     ```
 - Install dependencies:
+  Make sure your virtual environment is activated before running this command.
   ```bash
   pip install -r requirements.txt
   ```
 - **Configure `backend/config.py`**:
     - Open `backend/config.py`.
-    - Update `SQLALCHEMY_DATABASE_URI` with your actual database connection string (e.g., `postgresql://user:password@host:port/database_name`).
-    - **Crucially, update OAuth credentials**:
-        - `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REDIRECT_URI`
-        - `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`, `GITHUB_REDIRECT_URI`
-    - Replace placeholder values like `"YOUR_GOOGLE_CLIENT_ID"` with your actual credentials obtained from Google Cloud Platform and GitHub OAuth Apps.
-    - Ensure the `*_REDIRECT_URI` values match what you've configured in your OAuth provider settings and generally point to your backend's callback paths (e.g., `http://localhost:5001/api/auth/google/callback`).
-    - Set a strong `SECRET_KEY` for JWT and session security.
+    - **`SQLALCHEMY_DATABASE_URI`**: This is critical. For quick local development, you can use SQLite. For example: `SQLALCHEMY_DATABASE_URI = 'sqlite:///../instance/dev.db'`. This will create a `dev.db` file inside an `instance` folder at the root of the project (you might need to create the `instance` folder manually if it doesn't exist). For other databases like PostgreSQL, use the appropriate connection string (e.g., `postgresql://user:password@host:port/database_name`).
+    - **OAuth Credentials**: `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REDIRECT_URI`, and `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`, `GITHUB_REDIRECT_URI` are essential for social logins. Replace placeholder values with your actual credentials. Ensure the `*_REDIRECT_URI` values match your OAuth provider settings and point to your backend's callback paths (e.g., `http://localhost:5001/api/auth/google/callback`).
+    - **`SECRET_KEY`**: Set a strong, unique secret key for session security and JWT token encryption.
+    - **`FRONTEND_BASE_URL`**: The `backend/app.py` uses this configuration value to redirect users back to the frontend after OAuth authentication. Ensure it matches the URL where your frontend is served. The default is `'http://localhost:5000'`. If your frontend runs on a different port or domain, update this in `config.py` or by setting it as an environment variable. For example, before running the backend:
+      ```bash
+      export FRONTEND_BASE_URL='http://localhost:3000' # For Linux/macOS
+      # set FRONTEND_BASE_URL=http://localhost:3000    # For Windows
+      python app.py
+      ```
 - **Initialize the Database**:
-    - The Flask application in `backend/app.py` currently uses `db.create_all()` within an application context when run directly (`if __name__ == '__main__':`). This will create the necessary tables based on the SQLAlchemy models if they don't already exist.
-    - For the first run, ensure your database server is running and accessible with the credentials provided in `config.py`.
-    - Alternatively, you can use the `database/schema.sql` to manually set up the `users` table in your PostgreSQL database if you prefer not to use `db.create_all()` or are using a different database system initially.
+    - **Automatic Setup (Recommended for Development):** If `SQLALCHEMY_DATABASE_URI` in `backend/config.py` is set (e.g., to a SQLite path like `sqlite:///../instance/dev.db`), the Flask application (`backend/app.py`) will automatically create the database file (if it doesn't exist) and the necessary tables when you first run `python app.py`. This is due to the `db.create_all()` command within the application context.
+    - **Manual Setup (e.g., for PostgreSQL):** The `database/schema.sql` file contains the SQL commands to create the `users` table. This is primarily useful if you want to set up a specific database system like PostgreSQL manually or if you are not using SQLAlchemy's `db.create_all()` feature. You would typically execute this script against your configured database using a database management tool.
 - **Run the Flask development server**:
   ```bash
   python app.py
@@ -82,57 +113,84 @@ It includes a Python Flask backend and a simple HTML, CSS, and JavaScript fronte
 
 ### 2. Frontend Setup
 - No build step is required for this simple HTML, CSS, and JavaScript setup.
-- Open the `.html` files from the `frontend` directory directly in your browser using the `File -> Open File...` menu:
-    - For example, open `frontend/signup.html` or `frontend/signin.html`.
-- **Important**: For the frontend to correctly communicate with the backend (especially for OAuth redirects and API calls):
-    - Ensure the backend server is running and accessible (usually at `http://localhost:5001`).
-    - The frontend JavaScript files (`signin.js`, `signup.js`, `handle_token.js`) make API calls to relative paths like `/api/register`. For these to work correctly when opening HTML files directly, it's often best to serve the `frontend` directory through a simple HTTP server. Many tools can do this, for example, using Python:
+- **Serving the Frontend (Crucial for API Calls & OAuth):**
+    - While you can open `.html` files directly in the browser (`File -> Open File...`), this method **will not work** for features that rely on API calls to the backend (like registration, login) or for OAuth redirects.
+    - For the frontend to correctly communicate with the backend API and for OAuth redirects to function seamlessly, you **must serve the `frontend` directory using a simple HTTP server.**
+    - Ensure the backend server is running and accessible (typically at `http://localhost:5001`).
+    - The JavaScript files in `frontend/` (e.g., `signin.js`, `signup.js`) make API calls to relative paths like `/api/register`. A local HTTP server ensures these requests are correctly routed to your backend.
+    - **Example using Python's built-in HTTP server:**
+      Navigate to the `frontend` directory:
       ```bash
-      # Navigate to the root of the project, then:
       cd frontend
+      ```
+      Then start the server (e.g., on port 5000):
+      ```bash
       python -m http.server 5000
       ```
-      Then access the frontend at `http://localhost:5000/signin.html` or `http://localhost:5000/signup.html`. This ensures that requests from the frontend to the backend (e.g., `http://localhost:5001/api/...`) are handled correctly by the browser without cross-origin issues if both servers are on `localhost` but different ports.
-    - Note: The OAuth redirect URIs in `backend/config.py` and in your OAuth provider settings should ultimately point to the backend's callback endpoint (e.g., `http://localhost:5001/api/auth/google/callback`). The backend then redirects to `frontend/handle_token.html` with the application token. The hardcoded frontend URL in `backend/app.py` for this redirect is `http://localhost:5000/frontend/handle_token.html`. If you serve your frontend on a different port, this will need adjustment in `backend/app.py`.
+      Access your frontend at `http://localhost:5000/signin.html` or `http://localhost:5000/signup.html`.
+    - **Port Configuration:** If you serve the frontend on a port different from the default `5000` (e.g., `3000`), make sure to update the `FRONTEND_BASE_URL` in your backend configuration accordingly. As detailed in the "[1. Backend Setup](#1-backend-setup)" section, you can set this as an environment variable before running the backend:
+      ```bash
+      export FRONTEND_BASE_URL='http://localhost:3000' # For Linux/macOS
+      # set FRONTEND_BASE_URL=http://localhost:3000    # For Windows
+      # Then run your backend: python backend/app.py
+      ```
+- **OAuth Redirect URL (`handle_token.html`):**
+    - After a successful OAuth authentication (e.g., with Google or GitHub), the backend needs to redirect the user back to a frontend page. This page is `frontend/handle_token.html`.
+    - The backend constructs this redirect URL using the `FRONTEND_BASE_URL` variable from its configuration (see `backend/config.py` and "[1. Backend Setup](#1-backend-setup)"). The full redirect URL will be `FRONTEND_BASE_URL/frontend/handle_token.html`.
+    - By default, `FRONTEND_BASE_URL` is `http://localhost:5000`, so the backend redirects to `http://localhost:5000/frontend/handle_token.html`.
+    - If you serve your frontend on a different URL (e.g., `http://localhost:3000`), you must set the `FRONTEND_BASE_URL` environment variable for the backend to match, as explained above and in the backend setup instructions. This ensures the OAuth flow completes correctly by redirecting the user to the correct frontend page.
 
 ## API Endpoints (Backend)
-- **POST /api/register**: User registration.
-- **POST /api/login**: User login, returns JWT.
-- **GET /api/auth/google**: Initiates Google OAuth flow.
-- **GET /api/auth/google/callback**: Handles Google OAuth callback.
-- **GET /api/auth/github**: Initiates GitHub OAuth flow.
-- **GET /api/auth/github/callback**: Handles GitHub OAuth callback.
+- **POST `/api/register`**: User registration.
+- **POST `/api/login`**: User login, returns JWT.
+- **GET `/api/auth/google`**: Initiates Google OAuth flow.
+- **GET `/api/auth/google/callback`**: Handles Google OAuth callback.
+- **GET `/api/auth/github`**: Initiates GitHub OAuth flow.
+- **GET `/api/auth/github/callback`**: Handles GitHub OAuth callback.
 
 (Further details on request/response formats can be added here if needed.)
 
 ## Testing
 
-The backend includes a suite of unit tests to ensure functionality and catch regressions.
+The project includes backend unit tests and guidelines for manual end-to-end testing.
 
-### Running Tests
-1.  **Ensure you are in the root directory of the project.**
-2.  **Activate your virtual environment** (if you created one for the backend, as described in "Backend Setup").
+### Backend Unit Tests
+
+These tests cover individual components of the backend application to ensure functionality and catch regressions.
+
+#### Running Unit Tests
+1.  **Navigate to the root directory of the project.**
+2.  **Activate the backend virtual environment** (as described in "[1. Backend Setup](#1-backend-setup)"):
     ```bash
-    # Example for macOS/Linux:
+    # Example for macOS/Linux (from project root):
     # source backend/venv/bin/activate
-    # Example for Windows:
+    # Example for Windows (from project root):
     # backend\venv\Scripts\activate
     ```
-3.  **Run the tests** using Python's `unittest` module:
+3.  **Run all unit tests** using Python's `unittest` module from the project root directory:
     ```bash
     python -m unittest discover backend/tests
     ```
-    Or, to run a specific test file (e.g., `test_auth.py`):
+    This command discovers and runs all test files located in the `backend/tests` directory.
+    To run a specific test file (e.g., `test_auth.py`):
     ```bash
     python -m unittest backend.tests.test_auth
     ```
 
-### Test Environment
-- Tests are configured to run against an **in-memory SQLite database** (`sqlite:///:memory:`), as defined in `backend/tests/test_config.py`. This ensures that tests do not interfere with your development database and run in a clean, isolated environment.
-- External OAuth API calls are mocked using `unittest.mock` to provide consistent and predictable behavior during tests without actual network requests.
+#### Test Environment for Unit Tests
+- Unit tests are configured to use an **in-memory SQLite database** (`sqlite:///:memory:`), as specified in `backend/tests/test_config.py`.
+- This setup ensures that tests run in a clean, isolated environment and **do not interfere with your development database** or require any external database setup for testing.
+- External OAuth API calls are mocked using `unittest.mock` to provide consistent and predictable behavior during tests, avoiding actual network requests to Google or GitHub.
 
 ### Manual End-to-End Testing
-These tests require the backend server to be running and the frontend to be accessible in a browser (preferably served via a simple HTTP server as described in "Frontend Setup").
+
+Manual End-to-End (E2E) tests involve testing the complete application flow, from the user interface to the backend and database.
+
+**Prerequisites for Manual E2E Testing:**
+-   The **backend server must be running** (see "[1. Backend Setup](#1-backend-setup)").
+-   The **frontend must be served via an HTTP server** and accessible in your browser (see "[2. Frontend Setup](#2-frontend-setup)").
+
+These tests simulate real user scenarios:
 
 **1. Email/Password Authentication:**
    - **Sign Up:**
