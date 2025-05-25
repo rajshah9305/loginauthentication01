@@ -246,12 +246,12 @@ def auth_google_callback():
         # or communicates back via window.postMessage.
         # Redirect to frontend with the token in the URL hash/fragment
         # The frontend (handle_token.html) will pick this up.
-        frontend_redirect_url = f"{request.host_url.replace('http://', 'http://localhost:5000/').replace('0.0.0.0:5001', 'localhost:5000')}frontend/handle_token.html#token={app_access_token}"
         # A more robust way to determine frontend URL might be needed if not always localhost:5000
         # For example, use an environment variable for FRONTEND_BASE_URL
-        if 'localhost:5001' in request.host_url or '0.0.0.0:5001' in request.host_url : # common dev server
-             frontend_redirect_url = f"http://localhost:5000/frontend/handle_token.html#token={app_access_token}"
-
+        # if 'localhost:5001' in request.host_url or '0.0.0.0:5001' in request.host_url : # common dev server
+        #      frontend_redirect_url = f"http://localhost:5000/frontend/handle_token.html#token={app_access_token}"
+        frontend_base_url = os.environ.get('FRONTEND_BASE_URL', 'http://localhost:5000')
+        frontend_redirect_url = f"{frontend_base_url}/frontend/handle_token.html#token={app_access_token}"
 
         return redirect(frontend_redirect_url)
         # Old: return jsonify({'access_token': app_access_token, 'user_id': user.id, 'email': user.email}), 200
@@ -267,7 +267,8 @@ def auth_google_callback():
         if app.debug:
             error_message = f'An error occurred during Google authentication: {str(e)}'
         
-        frontend_error_redirect_url = f"http://localhost:5000/frontend/signin.html?error={jwt.utils.base64url_encode(error_message.encode()).decode()}"
+        frontend_base_url = os.environ.get('FRONTEND_BASE_URL', 'http://localhost:5000')
+        frontend_error_redirect_url = f"{frontend_base_url}/frontend/signin.html?error={jwt.utils.base64url_encode(error_message.encode()).decode()}"
         return redirect(frontend_error_redirect_url)
         # Old: return jsonify({'message': 'An error occurred during Google authentication.'}), 500
 
@@ -382,7 +383,8 @@ def auth_github_callback():
         app_access_token = jwt.encode(token_payload, app.config['SECRET_KEY'], algorithm='HS256')
 
         # Redirect to frontend with the token in the URL hash/fragment
-        frontend_redirect_url = f"http://localhost:5000/frontend/handle_token.html#token={app_access_token}"
+        frontend_base_url = os.environ.get('FRONTEND_BASE_URL', 'http://localhost:5000')
+        frontend_redirect_url = f"{frontend_base_url}/frontend/handle_token.html#token={app_access_token}"
         return redirect(frontend_redirect_url)
         # Old: return jsonify({'access_token': app_access_token, 'user_id': user.id, 'email': user.email}), 200
 
@@ -396,7 +398,8 @@ def auth_github_callback():
         if app.debug:
             error_message = f'An error occurred during GitHub authentication: {str(e)}'
 
-        frontend_error_redirect_url = f"http://localhost:5000/frontend/signin.html?error={jwt.utils.base64url_encode(error_message.encode()).decode()}"
+        frontend_base_url = os.environ.get('FRONTEND_BASE_URL', 'http://localhost:5000')
+        frontend_error_redirect_url = f"{frontend_base_url}/frontend/signin.html?error={jwt.utils.base64url_encode(error_message.encode()).decode()}"
         return redirect(frontend_error_redirect_url)
         # Old: return jsonify({'message': 'An error occurred during GitHub authentication.'}), 500
 
