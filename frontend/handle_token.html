@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Processing Authentication...</title>
+    <link rel="stylesheet" href="style.css"> <!-- Optional: for consistent styling -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            text-align: center;
+        }
+        .processing-container {
+            padding: 30px;
+        }
+        .processing-container p {
+            font-size: 1.2em;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="processing-container">
+        <p>Processing your authentication, please wait...</p>
+        <!-- A message div for errors during token processing -->
+        <div id="message" class="message-placeholder" style="display: none;" aria-live="assertive"></div>
+    </div>
+    <script src="handle_token.js"></script>
+</body>
+</html>
