@@ -11,7 +11,7 @@ from google.auth.transport import requests as google_requests
 import requests # For fetching userinfo if needed, though id_token is preferred
 
 app = Flask(__name__)
-app.config.from_object('config.Config')
+app.config.from_object('backend.config.Config')
 
 db = SQLAlchemy(app)
 
